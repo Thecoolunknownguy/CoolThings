@@ -1,0 +1,24 @@
+body {
+    background-color: pink; /* Changes the background color of the whole page */
+    font-family: Times New Roman, sans-serif; /* Sets the font style */
+    text-align: center; /* Centers all text content */
+    margin-top: 250px; /* Adds space above the content */
+}
+
+.container {
+    background-color: purple; /* Changes the background of the main content area */
+    padding: 20px; /* Adds space inside the container */
+    border-radius: 50px; /* Rounds the corners of the container */
+    width: 25%; /* Sets the width of the container */
+    margin: auto; /* Centers the container on the page */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Adds a subtle shadow */
+}
+
+h1 {
+    color: #001; /* Changes the color of the main heading */
+}
+
+p {
+    color: #000; /* Changes the color of the paragraphs */
+    font-size: 20px; /* Sets the font size */
+}
