@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spaghetti</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Georgia, serif;
+            background: #f5f5f5;
+            padding-bottom: 50px;
+        }
+
+        .header {
+            background: red;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-family: 'Lobster', cursive;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .recipe-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-title {
+            color: red;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-family: 'Lobster', cursive;
+        }
+
+        .card-time {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .card-description {
+            color: #333;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .card-difficulty {
+            display: inline-block;
+            background: #ffe0e0;
+            color: red;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .floating-image {
+            position: absolute;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            object-fit: cover;
+        }
+
+        .img1 { width: 200px; height: 150px; top: 100px; right: 50px; }
+        .img2 { width: 180px; height: 180px; top: 500px; left: 30px; }
+        .img3 { width: 220px; height: 160px; top: 900px; right: 80px; }
+        .img4 { width: 190px; height: 190px; top: 1300px; left: 60px; }
+        .img5 { width: 210px; height: 150px; top: 1700px; right: 40px; }
+        .img6 { width: 180px; height: 170px; top: 2100px; left: 80px; }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 0;
+            border-radius: 15px;
+            max-width: 700px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 30px;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modal-header h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            font-family: 'Lobster', cursive;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .close {
+            color: white;
+            float: right;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .modal-body h3 {
+            color: red;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+            font-family: 'Lobster', cursive;
+        }
+
+        .modal-body ul, .modal-body ol {
+            margin-left: 25px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .modal-body li {
+            margin: 8px 0;
+        }
+
+        @media (max-width: 768px) {
+            .floating-image {
+                display: none;
+            }
+            .modal-content {
+                margin: 20px;
+                max-width: calc(100% - 40px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>SPAGHETTI</h1>
+    </div>
+
+    <div class="content">
+        <img src="https://picsum.photos/200/150?random=1" alt="Spaghetti" class="floating-image img1">
+        <img src="https://picsum.photos/180/180?random=2" alt="Spaghetti" class="floating-image img2">
+        <img src="https://picsum.photos/220/160?random=3" alt="Spaghetti" class="floating-image img3">
+        <img src="https://picsum.photos/190/190?random=4" alt="Spaghetti" class="floating-image img4">
+        <img src="https://picsum.photos/210/150?random=5" alt="Spaghetti" class="floating-image img5">
+        <img src="https://picsum.photos/180/170?random=6" alt="Spaghetti" class="floating-image img6">
+
+        <div class="recipe-grid">
+            <div class="recipe-card" onclick="openModal('marinara')">
+                <div class="card-image"></div>
+                <div class="card-content">
+                    <h2 class="card-title">Classic Marinara</h2>
+                    <p class="card-time">⏱️ 20 minutes</p>
+                    <p class="card-description">
+                        A timeless Italian favorite with rich tomato sauce, fresh garlic, and aromatic basil. Perfect for a quick weeknight dinner.
+                    </p>
+                    <span class="card-difficulty">EASY</span>
+                </div>
+            </div>
+
+            <div class="recipe-card" onclick="openModal('garlic')">
+                <div class="card-image"></div>
+                <div class="card-content">
+                    <h2 class="card-title">Garlic Butter</h2>
+                    <p class="card-time">⏱️ 15 minutes</p>
+                    <p class="card-description">
+                        Simple yet incredibly flavorful with melted butter, sautéed garlic, and a hint of red pepper flakes for a perfect bite.
+                    </p>
+                    <span class="card-difficulty">EASY</span>
+                </div>
+            </div>
+
+            <div class="recipe-card" onclick="openModal('carbonara')">
+                <div class="card-image"></div>
+                <div class="card-content">
+                    <h2 class="card-title">Carbonara</h2>
+                    <p class="card-time">⏱️ 15 minutes</p>
+                    <p class="card-description">
+                        Creamy and indulgent with crispy bacon, eggs, and Parmesan cheese creating a silky sauce that coats every strand.
+                    </p>
+                    <span class="card-difficulty">EASY</span>
+                </div>
+            </div>
+
+            <div class="recipe-card" onclick="openModal('lemon')">
+                <div class="card-image"></div>
+                <div class="card-content">
+                    <h2 class="card-title">Lemon Parmesan</h2>
+                    <p class="card-time">⏱️ 12 minutes</p>
+                    <p class="card-description">
+                        Light and refreshing with bright lemon zest, quality olive oil, and fresh Parmesan for a zesty Mediterranean twist.
+                    </p>
+                    <span class="card-difficulty">EASY</span>
+                </div>
+            </div>
+
+            <div class="recipe-card" onclick="openModal('aglio')">
+                <div class="card-image"></div>
+                <div class="card-content">
+                    <h2 class="card-title">Aglio e Olio</h2>
+                    <p class="card-time">⏱️ 12 minutes</p>
+                    <p class="card-description">
+                        A classic Roman dish with just garlic, olive oil, and chili flakes. Minimalist ingredients, maximum flavor.
+                    </p>
+                    <span class="card-difficulty">EASY</span>
+                </div>
+            </div>
+
+            <div class="recipe-card" onclick="openModal('bolognese')">
+                <div class="card-image"></div>
+                <div class="card-content">
+                    <h2 class="card-title">Bolognese</h2>
+                    <p class="card-time">⏱️ 25 minutes</p>
+                    <p class="card-description">
+                        Hearty meat sauce with ground beef, tomatoes, and Italian herbs simmered to perfection for a satisfying meal.
+                    </p>
+                    <span class="card-difficulty">EASY</span>
+                </div>
+            </div>
+
+            <div class="recipe-card" onclick="openModal('pesto')">
+                <div class="card-image"></div>
+                <div class="card-content">
+                    <h2 class="card-title">Pesto</h2>
+                    <p class="card-time">⏱️ 10 minutes</p>
+                    <p class="card-description">
+                        Fresh basil pesto with pine nuts, garlic, and Parmesan creates a vibrant green sauce bursting with herby flavor.
+                    </p>
+                    <span class="card-difficulty">EASY</span>
+                </div>
+            </div>
+
+            <div class="recipe-card" onclick="openModal('tomato')">
+                <div class="card-image"></div>
+                <div class="card-content">
+                    <h2 class="card-title">Tomato Basil</h2>
+                    <p class="card-time">⏱️ 18 minutes</p>
+                    <p class="card-description">
+                        Fresh tomatoes and basil come together with olive oil for a light, summery pasta that celebrates simple ingredients.
+                    </p>
+                    <span class="card-difficulty">EASY</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="recipeModal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2 id="modalTitle"></h2>
+                <p id="modalTime"></p>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const recipes = {
+            marinara: {
+                title: "Classic Spaghetti with Marinara",
+                time: "⏱️ Prep: 5 min | Cook: 20 min | Total: 25 min",
+                ingredients: [
+                    "1 pound spaghetti",
+                    "2 cups marinara sauce",
+                    "3 cloves garlic, minced",
+                    "3 tablespoons olive oil",
+                    "Fresh basil leaves",
+                    "1/2 cup Parmesan cheese, grated",
+                    "Salt and black pepper to taste",
+                    "Red pepper flakes (optional)"
+                ],
+                instructions: [
+                    "Bring a large pot of salted water to boil. Add spaghetti and cook according to package directions until al dente.",
+                    "While pasta cooks, heat olive oil in a large pan over medium heat. Add minced garlic and sauté for 1-2 minutes until fragrant but not browned.",
+                    "Add marinara sauce to the pan and bring to a gentle simmer. Let cook for 5-7 minutes to develop flavors.",
+                    "Reserve 1/2 cup of pasta water before draining. Drain the spaghetti.",
+                    "Add the cooked spaghetti to the sauce and toss to coat. Add pasta water if needed to loosen the sauce.",
+                    "Season with salt and pepper to taste. Top with torn fresh basil and grated Parmesan cheese.",
+                    "Serve immediately with extra Parmesan on the side!"
+                ]
+            },
+            garlic: {
+                title: "Easy Garlic Butter Spaghetti",
+                time: "⏱️ Prep: 5 min | Cook: 15 min | Total: 20 min",
+                ingredients: [
+                    "1 pound spaghetti",
+                    "6 tablespoons butter",
+                    "6 cloves garlic, minced",
+                    "1/2 cup pasta water",
+                    "1/2 teaspoon red pepper flakes",
+                    "1/4 cup fresh parsley, chopped",
+                    "1/2 cup Parmesan cheese, grated",
+                    "Salt and black pepper to taste"
+                ],
+                instructions: [
+                    "Cook spaghetti in a large pot of salted boiling water according to package directions. Reserve 1/2 cup pasta water before draining.",
+                    "While pasta cooks, melt butter in a large skillet over medium heat.",
+                    "Add minced garlic to the melted butter and cook for 1-2 minutes, stirring constantly until fragrant and lightly golden.",
+                    "Add red pepper flakes and cook for another 30 seconds.",
+                    "Add the drained spaghetti to the skillet along with the reserved pasta water. Toss everything together for 2-3 minutes.",
+                    "Remove from heat and stir in chopped parsley and half the Parmesan cheese.",
+                    "Season with salt and black pepper. Serve with remaining Parmesan on top!"
+                ]
+            },
+            carbonara: {
+                title: "Simple Spaghetti Carbonara",
+                time: "⏱️ Prep: 5 min | Cook: 15 min | Total: 20 min",
+                ingredients: [
+                    "1 pound spaghetti",
+                    "4 large eggs",
+                    "1 cup Parmesan cheese, finely grated",
+                    "8 slices bacon, diced",
+                    "Freshly ground black pepper",
+                    "Salt to taste",
+                    "1/4 cup fresh parsley, chopped (optional)"
+                ],
+                instructions: [
+                    "Cook spaghetti in salted boiling water according to package directions. Reserve 1 cup of pasta water before draining.",
+                    "While pasta cooks, fry diced bacon in a large skillet over medium heat until crispy, about 8-10 minutes. Remove from heat.",
+                    "In a bowl, whisk together eggs and grated Parmesan cheese until well combined. Season generously with black pepper.",
+                    "Drain the pasta and immediately add it to the skillet with bacon (off heat). Toss to coat.",
+                    "Quickly pour the egg mixture over the hot pasta and toss vigorously. The heat from the pasta will cook the eggs into a creamy sauce.",
+                    "Add pasta water a little at a time while tossing, until you reach a silky, creamy consistency.",
+                    "Season with salt if needed and more black pepper. Serve immediately with extra Parmesan!"
+                ]
+            },
+            lemon: {
+                title: "Quick Lemon Parmesan Spaghetti",
+                time: "⏱️ Prep: 5 min | Cook: 12 min | Total: 17 min",
+                ingredients: [
+                    "1 pound spaghetti",
+                    "Zest of 2 lemons",
+                    "Juice of 2 lemons (about 1/4 cup)",
+                    "1 cup Parmesan cheese, grated",
+                    "1/2 cup extra virgin olive oil",
+                    "1/4 cup fresh basil, chopped",
+                    "Salt and black pepper to taste",
+                    "Red pepper flakes (optional)"
+                ],
+                instructions: [
+                    "Cook spaghetti until al dente according to package directions. Reserve 1 cup of pasta water before draining.",
+                    "While pasta cooks, in a large bowl combine olive oil, lemon zest, lemon juice, and half the Parmesan cheese.",
+                    "Drain the hot pasta and immediately add it to the bowl with the lemon mixture.",
+                    "Toss vigorously, adding pasta water a little at a time until the sauce is creamy and coats the pasta.",
+                    "Stir in the remaining Parmesan cheese and fresh basil.",
+                    "Season generously with salt and black pepper. Add red pepper flakes if desired.",
+                    "Serve immediately with extra lemon wedges and Parmesan on the side!"
+                ]
+            },
+            aglio: {
+                title: "Aglio e Olio",
+                time: "⏱️ Prep: 3 min | Cook: 12 min | Total: 15 min",
+                ingredients: [
+                    "1 pound spaghetti",
+                    "1/2 cup extra virgin olive oil",
+                    "8 cloves garlic, thinly sliced",
+                    "1 teaspoon red pepper flakes",
+                    "1/4 cup fresh parsley, chopped",
+                    "Salt to taste",
+                    "Parmesan cheese (optional)"
+                ],
+                instructions: [
+                    "Cook spaghetti in salted boiling water until al dente. Reserve 1 cup of pasta water before draining.",
+                    "While pasta cooks, heat olive oil in a large skillet over medium-low heat.",
+                    "Add sliced garlic and cook slowly for 3-4 minutes until golden and fragrant, being careful not to burn it.",
+                    "Add red pepper flakes and cook for another 30 seconds.",
+                    "Add the drained spaghetti to the skillet and toss to coat in the garlic oil.",
+                    "Add pasta water a little at a time while tossing, creating a light sauce that coats the pasta.",
+                    "Remove from heat, stir in fresh parsley, and season with salt. Serve immediately!"
+                ]
+            },
+            bolognese: {
+                title: "Easy Bolognese",
+                time: "⏱️ Prep: 5 min | Cook: 25 min | Total: 30 min",
+                ingredients: [
+                    "1 pound spaghetti",
+                    "1 pound ground beef",
+                    "1 onion, diced",
+                    "2 cloves garlic, minced",
+                    "1 can (28 oz) crushed tomatoes",
+                    "2 tablespoons tomato paste",
+                    "1 teaspoon dried oregano",
+                    "1 teaspoon dried basil",
+                    "Salt and pepper to taste",
+                    "Parmesan cheese for serving"
+                ],
+                instructions: [
+                    "In a large skillet, brown the ground beef over medium-high heat, breaking it up as it cooks, about 5-7 minutes.",
+                    "Add diced onion and cook until softened, about 3-4 minutes. Add garlic and cook for 1 minute.",
+                    "Stir in tomato paste and cook for 2 minutes to caramelize it slightly.",
+                    "Add crushed tomatoes, oregano, and basil. Season with salt and pepper.",
+                    "Reduce heat and simmer the sauce for 15-20 minutes, stirring occasionally.",
+                    "While sauce simmers, cook spaghetti according to package directions. Drain.",
+                    "Serve the bolognese sauce over the spaghetti with grated Parmesan cheese on top!"
+                ]
+            },
+            pesto: {
+                title: "Fresh Pesto Spaghetti",
+                time: "⏱️ Prep: 10 min | Cook: 10 min | Total: 20 min",
+                ingredients: [
+                    "1 pound spaghetti",
+                    "2 cups fresh basil leaves",
+                    "1/3 cup pine nuts",
+                    "3 cloves garlic",
+                    "1/2 cup Parmesan cheese, grated",
+                    "1/2 cup extra virgin olive oil",
+                    "Salt and pepper to taste",
+                    "Cherry tomatoes (optional)"
+                ],
+                instructions: [
+                    "Cook spaghetti according to package directions. Reserve 1 cup of pasta water before draining.",
+                    "While pasta cooks, make the pesto: In a food processor or blender, combine basil, pine nuts, and garlic. Pulse until finely chopped.",
+                    "Add Parmesan cheese and pulse to combine.",
+                    "With the processor running, slowly drizzle in olive oil until smooth and creamy.",
+                    "Season the pesto with salt and pepper to taste.",
+                    "Drain the pasta and return to the pot. Add the pesto and toss to coat.",
+                    "Add pasta water as needed to loosen the sauce. Serve with extra Parmesan and halved cherry tomatoes if desired!"
+                ]
+            },
+            tomato: {
+                title: "Fresh Tomato Basil Spaghetti",
+                time: "⏱️ Prep: 5 min | Cook: 18 min | Total: 23 min",
+                ingredients: [
+                    "1 pound spaghetti",
+                    "4 large ripe tomatoes, diced",
+                    "4 cloves garlic, minced",
+                    "1/4 cup extra virgin olive oil",
+                    "1 cup fresh basil leaves, torn",
+                    "1/2 cup Parmesan cheese, grated",
+                    "Salt and pepper to taste",
+                    "Pinch of sugar (optional)"
+                ],
+                instructions: [
+                    "Cook spaghetti in salted boiling water according to package directions. Reserve 1/2 cup pasta water before draining.",
+                    "While pasta cooks, heat olive oil in a large skillet over medium heat.",
+                    "Add minced garlic and sauté for 1 minute until fragrant.",
+                    "Add diced tomatoes and cook for 8-10 minutes until they break down and become saucy. Add a pinch of sugar if tomatoes are acidic.",
+                    "Season the tomato sauce with salt and pepper.",
+                    "Add the drained spaghetti to the skillet with the tomato sauce and toss to combine.",
+                    "Stir in torn basil leaves and Parmesan cheese. Add pasta water if needed. Serve immediately!"
+                ]
+            }
+        };
+
+        function openModal(recipeId) {
+            const recipe = recipes[recipeId];
+            const modal = document.getElementById('recipeModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalTime = document.getElementById('modalTime');
+            const modalBody = document.getElementById('modalBody');
+
+            modalTitle.textContent = recipe.title;
+            modalTime.textContent = recipe.time;
+
+            let bodyHTML = '<h3>Ingredients:</h3><ul>';
+            recipe.ingredients.forEach(ingredient => {
+                bodyHTML += `<li>${ingredient}</li>`;
+            });
+            bodyHTML += '</ul><h3>Instructions:</h3><ol>';
+            recipe.instructions.forEach(instruction => {
+                bodyHTML += `<li>${instruction}</li>`;
+            });
+            bodyHTML += '</ol>';
+
+            modalBody.innerHTML = bodyHTML;
+            modal.style.display = 'block';
+        }
+
+        function closeModal(event) {
+            const modal = document.getElementById('recipeModal');
+            if (!event || event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
